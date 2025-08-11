@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 class BikeSliderWidget extends StatefulWidget {
   final List<BikeSlide> slides;
   final double height;
   final Function(int)? onSlideChanged;
+  final bool autoPlay;
+  final Duration autoPlayInterval;
 
   const BikeSliderWidget({
     Key? key,
     required this.slides,
     this.height = 200,
     this.onSlideChanged,
+    this.autoPlay = true,
+    this.autoPlayInterval = const Duration(seconds: 3),
   }) : super(key: key);
 
   @override
@@ -19,17 +24,34 @@ class BikeSliderWidget extends StatefulWidget {
 class _BikeSliderWidgetState extends State<BikeSliderWidget> {
   late PageController _pageController;
   int _currentIndex = 0;
+  Timer? _autoTimer;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+    _startAutoPlayIfNeeded();
   }
 
   @override
   void dispose() {
+    _autoTimer?.cancel();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _startAutoPlayIfNeeded() {
+    if (!widget.autoPlay || widget.slides.isEmpty) return;
+    _autoTimer?.cancel();
+    _autoTimer = Timer.periodic(widget.autoPlayInterval, (timer) {
+      if (!mounted) return;
+      final int next = (_currentIndex + 1) % widget.slides.length;
+      _pageController.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+      );
+    });
   }
 
   @override
@@ -41,36 +63,40 @@ class _BikeSliderWidgetState extends State<BikeSliderWidget> {
         color: Colors.black,
         borderRadius: BorderRadius.circular(20),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
           // Bike image slider
-          PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-              widget.onSlideChanged?.call(index);
-            },
-            itemCount: widget.slides.length,
-            itemBuilder: (context, index) {
-              final slide = widget.slides[index];
-              return _buildSlide(slide);
-            },
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+                widget.onSlideChanged?.call(index);
+              },
+              itemCount: widget.slides.length,
+              itemBuilder: (context, index) {
+                final slide = widget.slides[index];
+                return _buildSlide(slide);
+              },
+            ),
           ),
           // Description console overlay
           Positioned(
             bottom: 50,
             left: 16,
             right: 16,
-            child: _buildDescriptionConsole(),
+            child: IgnorePointer(child: _buildDescriptionConsole()),
           ),
           // Slider indicators
           Positioned(
             bottom: 16,
             left: 0,
             right: 0,
-            child: _buildSliderIndicators(),
+            child: IgnorePointer(child: _buildSliderIndicators()),
           ),
         ],
       ),
@@ -121,7 +147,7 @@ class _BikeSliderWidgetState extends State<BikeSliderWidget> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.8),
+        color: Colors.black.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

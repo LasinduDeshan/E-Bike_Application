@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// Battery card styled to match the provided design: 
+/// black rounded card, lime icon tile with bolt, and right-aligned percentage.
 class BatteryDetailsWidget extends StatelessWidget {
   final int batteryLevel;
   final double height;
@@ -9,7 +11,7 @@ class BatteryDetailsWidget extends StatelessWidget {
     Key? key,
     required this.batteryLevel,
     this.height = 120,
-    this.width = 80,
+    this.width = double.infinity,
   }) : super(key: key);
 
   @override
@@ -19,123 +21,77 @@ class BatteryDetailsWidget extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         color: Colors.black,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Battery icon
-            _buildBatteryIcon(),
-            const SizedBox(width: 12),
-            // Battery text
+            // White pill with lime inner and bolt
+            Container(
+              width: 52,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Center(
+                child: Container(
+                  width: 34,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD4FF3F),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.flash_on,
+                      color: Colors.black,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            // Text block aligned like reference: title, subtitle, value below
             Expanded(
-              child: _buildBatteryText(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Battery',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Level',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '$batteryLevel%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildBatteryIcon() {
-    return Container(
-      width: 32,
-      height: 64,
-      child: Stack(
-        children: [
-          // Battery outline
-          Container(
-            width: 32,
-            height: 64,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.white, width: 2),
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-          // Battery fill
-          Positioned(
-            bottom: 3,
-            left: 3,
-            right: 3,
-            child: Container(
-              height: _getBatteryFillHeight(),
-              decoration: BoxDecoration(
-                color: _getBatteryColor(),
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-          ),
-          // Battery terminal
-          Positioned(
-            top: 0,
-            left: 8,
-            child: Container(
-              width: 16,
-              height: 6,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(1),
-              ),
-            ),
-          ),
-          // Lightning bolt icon
-          if (batteryLevel > 0)
-            Center(
-              child: Icon(
-                Icons.flash_on,
-                color: Colors.black,
-                size: 18,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBatteryText() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Text(
-          'Battery',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 2),
-        const Text(
-          'Level',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          '$batteryLevel%',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
-  double _getBatteryFillHeight() {
-    // Calculate fill height based on battery level (0-100%)
-    final maxHeight = 58.0; // 64 - 6 (padding)
-    return (batteryLevel / 100) * maxHeight;
-  }
-
-  Color _getBatteryColor() {
-    if (batteryLevel >= 70) return const Color(0xFFD4FF3F); // Lime green
-    if (batteryLevel >= 40) return Colors.orange;
-    return Colors.red;
   }
 }

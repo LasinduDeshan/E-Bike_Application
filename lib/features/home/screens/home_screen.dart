@@ -6,7 +6,11 @@ import '../../common/widgets/bike_info_card.dart';
 import '../../common/widgets/map_preview_widget.dart';
 import '../../common/widgets/bike_slider_widget.dart';
 import '../../common/widgets/battery_details_widget.dart';
+import '../../common/widgets/bike_number_card.dart';
+import '../../common/widgets/temperature_card.dart';
+import '../../common/widgets/speed_card.dart';
 import '../../../features/common/widgets/custom_bottom_nav_bar.dart';
+import '../../common/widgets/map_preview_widget.dart';
 
 /// Home Screen for the E-Bike Tracking App.
 /// Displays user info, assigned bike, stats, and map preview.
@@ -39,9 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 16),
                     _buildMainBikeCard(),
                     const SizedBox(height: 16),
-                    _buildStatsGrid(),
-                    const SizedBox(height: 16),
-                    _buildMapSection(),
+                    _buildDashboardCards(),
                   ],
                 ),
               ),
@@ -49,6 +51,84 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // Private widget placed inside the State class to avoid top-level declaration errors
+  Widget _SpeedAndMapRow({required double height}) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // If the available width for this row is small (e.g., in a 2-column layout),
+        // stack the two cards vertically to avoid RenderFlex overflow.
+        final bool shouldStack = constraints.maxWidth < 300;
+
+        final Widget miniMapCard = SizedBox(
+          height: height,
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFEDEDED),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: MapPreviewWidget(
+                      lat: 6.9271,
+                      lon: 79.8612,
+                      height: height,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: Colors.black,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.double_arrow,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        if (shouldStack) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SpeedCard(
+                speedText: '20 Km/h',
+                height: height,
+              ),
+              const SizedBox(height: 12),
+              miniMapCard,
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: SpeedCard(
+                speedText: '20 Km/h',
+                height: height,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Flexible(child: miniMapCard),
+          ],
+        );
+      },
     );
   }
 
@@ -173,83 +253,138 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildDashboardCards() {
+    // Layout: two columns. Left column = tall bike card then speed.
+    // Right column = battery then temperature.
+    const double batteryHeight = 150;
+    const double speedHeight = 114;
+    const double gap = 12;
+
+    const double bikeTallHeight = batteryHeight + speedHeight + gap;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Left column
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const BikeNumberCard(
+                bikeNumber: '#EB123456',
+                imageAsset: 'assets/images/bike4.png',
+                height: bikeTallHeight,
+              ),
+              const SizedBox(height: gap),
+              // Speed card only
+              const SpeedCard(
+                speedText: '20 Km/h',
+                height: speedHeight,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        // Right column
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const BatteryDetailsWidget(
+                batteryLevel: 72,
+                height: batteryHeight,
+              ),
+              const SizedBox(height: gap),
+              const TemperatureCard(
+                temperatureC: 49,
+                height: speedHeight,
+              ),
+              const SizedBox(height: gap),
+              // Move mini map card to the right column, below temperature
+              _MiniMapCard(
+                height: speedHeight,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildMainBikeCard() {
-    final bikeSlides = [
-      const BikeSlide(
+    final bikeSlides = const [
+      BikeSlide(
         imageUrl: 'assets/images/bike1.jpg',
-        title: 'E-Bike #EB123456',
-        description: 'Full-suspension electric mountain bike with integrated battery and motor',
+        title: 'Conquer Every Trail',
+        description:
+            'Full-suspension electric mountain bike built for adventure without limits.',
       ),
-      const BikeSlide(
+      BikeSlide(
         imageUrl: 'assets/images/bike2.jpg',
-        title: 'Battery Status',
-        description: '72% battery remaining • 49°C temperature • 20 km/h speed',
+        title: 'Power Meets Freedom',
+        description:
+            'Effortless riding with a powerful motor and sleek integrated design.',
       ),
-      const BikeSlide(
-        title: 'Location',
-        description: 'Currently at School Campus • Last updated 2 minutes ago',
+      BikeSlide(
+        imageUrl: 'assets/images/bike3.jpg',
+        title: 'Your Next Ride Awaits',
+        description:
+            'From city streets to mountain peaks — ride anywhere, anytime.',
       ),
     ];
+
+
 
     return BikeSliderWidget(
       slides: bikeSlides,
       height: 200,
-      onSlideChanged: (index) {
-        // Handle slide change if needed
-        print('Slide changed to index: $index');
-      },
+      onSlideChanged: (index) {},
     );
   }
 
-  Widget _buildStatsGrid() {
-    return Column(
-      children: [
-        Row(
+  // Mini map card to be used on the right column below the temperature card
+  static const double _miniMapArrowSize = 36;
+  static const double _miniMapBorderRadius = 22;
+  static const double _miniMapInnerRadius = 14;
+
+  Widget _MiniMapCard({required double height}) {
+    return SizedBox(
+      height: height,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(_miniMapBorderRadius),
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Row(
           children: [
             Expanded(
-              child: _buildStatCard(
-                title: 'Bike\nNumber',
-                value: '#EB123456',
-                icon: Icons.pedal_bike,
-                backgroundColor: Colors.grey[300]!,
-                textColor: Colors.black,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(_miniMapInnerRadius),
+                child: MapPreviewWidget(
+                  lat: 6.9271,
+                  lon: 79.8612,
+                  height: height,
+                ),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: BatteryDetailsWidget(
-                batteryLevel: 72,
-                height: 120,
-                width: double.infinity,
+            const SizedBox(width: 8),
+            Container(
+              width: _miniMapArrowSize,
+              height: _miniMapArrowSize,
+              decoration: const BoxDecoration(
+                color: Colors.black,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.double_arrow,
+                color: Colors.white,
+                size: 20,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                title: 'Bike\nTemperature',
-                value: '49°C',
-                icon: Icons.thermostat,
-                backgroundColor: Colors.grey[300]!,
-                textColor: Colors.black,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                title: 'Speed',
-                value: '20 Km/h',
-                icon: Icons.speed,
-                backgroundColor: Colors.black,
-                textColor: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 

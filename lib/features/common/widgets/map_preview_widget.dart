@@ -24,7 +24,7 @@ class MapPreviewWidget extends StatelessWidget {
       return Container(
         height: height,
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: Color.fromARGB(255, 111, 111, 111),
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: const Center(child: Icon(Icons.map, size: 32, color: Colors.grey)),

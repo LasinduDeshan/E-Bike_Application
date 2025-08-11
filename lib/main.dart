@@ -102,24 +102,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           _currentIndex = index;
         });
       },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? const Color(0xFFD4FF3F) : Colors.grey,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: isSelected ? const Color(0xFFD4FF3F) : Colors.grey,
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6.0),
+        child: Icon(
+          icon,
+          color: isSelected ? const Color(0xFFD4FF3F) : Colors.grey,
+          size: 24,
+        ),
       ),
     );
   }

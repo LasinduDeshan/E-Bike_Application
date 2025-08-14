@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../core/theme/bike_marker_colors.dart';
 
 /// A small rounded map preview widget using OpenStreetMap.
 /// [lat] and [lon] are required. If null, shows a placeholder.
@@ -24,7 +25,7 @@ class MapPreviewWidget extends StatelessWidget {
       return Container(
         height: height,
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 111, 111, 111),
+          color: Color.fromARGB(255, 218, 218, 218),
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: const Center(child: Icon(Icons.map, size: 32, color: Colors.grey)),
@@ -51,7 +52,11 @@ class MapPreviewWidget extends StatelessWidget {
                   width: 40.0,
                   height: 40.0,
                   point: LatLng(lat!, lon!),
-                  child: const Icon(Icons.pedal_bike, color: Colors.green, size: 32),
+                  child: Icon(
+                    Icons.pedal_bike,
+                    color: BikeMarkerColors.highBatteryColor,
+                    size: 32,
+                  ),
                 ),
               ],
             ),

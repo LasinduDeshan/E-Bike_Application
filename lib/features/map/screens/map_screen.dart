@@ -49,6 +49,17 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
   String _mapStyle = 'default';
   bool _showTraffic = false;
 
+  // Marker color scheme (edit here to change indicator colors)
+  static const Color _markerHighBattery = Color.fromARGB(255, 19, 98, 254); // bright green
+  static const Color _markerMediumBattery = Color(0xFFFFD740); // amber
+  static const Color _markerLowBattery = Color(0xFFFF5252); // red
+  
+  Color _getBatteryColor(int battery) {
+    if (battery >= 70) return _markerHighBattery;
+    if (battery >= 40) return _markerMediumBattery;
+    return _markerLowBattery;
+  }
+
   // Mock data - replace with your actual data source
   final List<Bike> _availableBikes = [
     Bike(
@@ -576,7 +587,8 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: _getBatteryColor(_selectedBike!.battery).withOpacity(0.1),
+                            color: _getBatteryColor(_selectedBike!.battery)
+                                .withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -624,7 +636,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             icon: Icons.battery_full,
                             label: 'Battery',
                             value: '${_selectedBike!.battery}%',
-                            color: _getBatteryColor(_selectedBike!.battery),
+                             color: _getBatteryColor(_selectedBike!.battery),
                           ),
                         ),
                         Expanded(
@@ -670,7 +682,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                             label: const Text('Unlock'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                              foregroundColor: Colors.white,
+                              foregroundColor: Colors.black,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
@@ -716,11 +728,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
     );
   }
 
-  Color _getBatteryColor(int battery) {
-    if (battery >= 70) return const Color(0xFFD4FF3F);
-    if (battery >= 40) return const Color(0xFFFF9800);
-    return const Color(0xFFF44336);
-  }
+  // Colors moved to BikeMarkerColors for centralized configuration.
 
   void _centerOnUserLocation() {
     _mapController.move(LatLng(6.9271, 79.8612), 16.0);
@@ -796,7 +804,7 @@ class _MapScreenState extends State<MapScreen> with TickerProviderStateMixin {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('🚲 ${bike.bikeNumber} unlocked! Enjoy your ride!'),
-                          backgroundColor: const Color(0xFFD4FF3F),
+                          backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );

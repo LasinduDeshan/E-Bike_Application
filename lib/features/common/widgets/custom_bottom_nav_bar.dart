@@ -13,7 +13,7 @@ class CustomBottomNavBar extends StatelessWidget {
     required this.onTap,
     this.accentColor = const Color(0xFFD4FF3F),
     this.borderRadius = const BorderRadius.only(
-      topLeft: Radius.circular(56),
+      topLeft: Radius.circular(86),
       topRight: Radius.circular(56),
     ),
   }) : super(key: key);

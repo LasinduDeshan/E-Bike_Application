@@ -3,7 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/ride_history.dart';
 
-/// Modern Activities Screen with Creative Design
+/// Activities Screen with Profile Screen UI Design & Colors
 class ActivitiesScreen extends StatefulWidget {
   const ActivitiesScreen({Key? key}) : super(key: key);
 
@@ -13,7 +13,7 @@ class ActivitiesScreen extends StatefulWidget {
 
 class _ActivitiesScreenState extends State<ActivitiesScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _slideAnimation;
+  late Animation<double> _fadeAnimation;
   String _selectedPeriod = '7D';
 
   // Mock data - replace with Firebase data
@@ -84,11 +84,11 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with TickerProvider
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    _slideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _animationController.forward();
   }
@@ -102,56 +102,49 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with TickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: AnimatedBuilder(
-        animation: _slideAnimation,
-        builder: (context, child) {
-          return Transform.translate(
-            offset: Offset(0, 50 * (1 - _slideAnimation.value)),
-            child: Opacity(
-              opacity: _slideAnimation.value,
-              child: CustomScrollView(
-                slivers: [
-                  _buildSliverAppBar(),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        children: [
-                          _buildOverviewCards(),
-                          const SizedBox(height: 25),
-                          _buildChartSection(),
-                          const SizedBox(height: 25),
-                          _buildRecentRides(),
-                        ],
-                      ),
-                    ),
+      backgroundColor: Colors.black, // Profile screen background
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: CustomScrollView(
+          slivers: [
+            _buildSliverAppBar(),
+            SliverToBoxAdapter(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA), // Profile screen content background
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(50),
+                    topRight: Radius.circular(50),
                   ),
-                ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      _buildOverviewCards(),
+                      const SizedBox(height: 30),
+                      _buildChartSection(),
+                      const SizedBox(height: 30),
+                      _buildRecentRides(),
+                    ],
+                  ),
+                ),
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSliverAppBar() {
     return SliverAppBar(
-      expandedHeight: 120,
+      expandedHeight: 200,
       floating: false,
       pinned: true,
       backgroundColor: Colors.black,
       automaticallyImplyLeading: false,
       flexibleSpace: FlexibleSpaceBar(
-        title: const Text(
-          'Activities',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
         background: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -159,34 +152,97 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with TickerProvider
               end: Alignment.bottomRight,
               colors: [
                 Colors.black,
-                Color(0xFF2A2A2A),
+                Color.fromARGB(255, 0, 0, 0),
               ],
             ),
           ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: -50,
-                top: -30,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD4FF3F).withOpacity(0.1),
-                    shape: BoxShape.circle,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
+                    children: [
+                      Hero(
+                        tag: 'activities_avatar',
+                        child: Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFFD4FF3F),
+                              width: 3,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFD4FF3F).withOpacity(0.3),
+                                blurRadius: 15,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: const CircleAvatar(
+                            radius: 32,
+                            backgroundColor: Colors.grey,
+                            child: Icon(
+                              Icons.trending_up,
+                              size: 35,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Activities',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Weekly Overview',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: const Color(0xFFD4FF3F),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(
+                              'Track your riding progress',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[400],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD4FF3F),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.insights,
+                          color: Colors.black,
+                          size: 20,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                ],
               ),
-              Positioned(
-                right: 20,
-                top: 50,
-                child: Icon(
-                  Icons.trending_up,
-                  size: 40,
-                  color: const Color(0xFFD4FF3F).withOpacity(0.3),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -320,13 +376,13 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with TickerProvider
             children: [
               Icon(
                 icon,
-                color: isPrimary ? Colors.black : color,
+                color: isPrimary ? Colors.white : color,
                 size: 24,
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: isPrimary ? Colors.black.withOpacity(0.1) : color.withOpacity(0.2),
+                  color: isPrimary ? Colors.white.withOpacity(0.2) : color.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -334,7 +390,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with TickerProvider
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: isPrimary ? Colors.black : color,
+                    color: isPrimary ? Colors.white : color,
                   ),
                 ),
               ),
@@ -346,7 +402,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with TickerProvider
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: isPrimary ? Colors.black : Colors.black87,
+              color: isPrimary ? Colors.white : Colors.black87,
             ),
           ),
           const SizedBox(height: 2),
@@ -354,7 +410,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> with TickerProvider
             label,
             style: TextStyle(
               fontSize: 12,
-              color: isPrimary ? Colors.black54 : Colors.grey[600],
+              color: isPrimary ? Colors.white70 : Colors.grey[600],
             ),
           ),
         ],
